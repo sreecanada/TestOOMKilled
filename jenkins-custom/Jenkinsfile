@@ -21,7 +21,7 @@ pipeline {
             }
         }
 
-        stage('Verify Pods') {
+        stage('Verify Pod status') {
             steps {
                 sh 'kubectl get pods'
             }
