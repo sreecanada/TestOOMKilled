@@ -9,21 +9,27 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build Java Application') {
             steps {
-                sh 'docker build -t java-memory-test:latest -f jenkins-custom/Dockerfile .'
+                sh 'mvn clean package -DskipTests'
             }
         }
 
-        stage('Deploying to Kubernetes test') {
+        stage('Build Java Docker Image') {
             steps {
-                sh 'kubectl apply -f java-memory-test-deployment.yaml'
+                sh 'docker build -t java-memory-test:latest .'
             }
         }
 
-        stage('Verify Pod status') {
+        stage('Deploy OOM Test to Kubernetes') {
             steps {
-                sh 'kubectl get pods'
+                sh 'kubectl apply -f java-memory-test-oom-deployment.yaml'
+            }
+        }
+
+        stage('Verify Pods') {
+            steps {
+                sh 'kubectl get pods -l app=java-memory-test-oom'
             }
         }
     }
