@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-memory-test
+spec:
+  replicas: 4
+
+  selector:
+    matchLabels:
+      app: java-memory-test
+
+  template:
+    metadata:
+      labels:
+        app: java-memory-test
+
+    spec:
+      containers:
+        - name: java-memory-hog
+          image: eclipse-temurin:17-jdk
+
+          command:
+            - /bin/sh
+            - -c
+            - |
+              cat > /tmp/MemoryEater.java <<'EOF'
+              import java.util.ArrayList;
+              import java.util.List;
+
+              public class MemoryEater {
+                  public static void main(String[] args) throws Exception {
+
+                      System.out.println("Starting Java Memory Eater...");
+
+                      List<byte[]> memory = new ArrayList<>();
+
+                      while (true) {
+                          byte[] block = new byte[10 * 1024 * 1024];
+                          memory.add(block);
+
+                          System.out.println(
+                              "Allocated approximately "
+                              + (memory.size() * 10)
+                              + " MB"
+                          );
+
+                          Thread.sleep(1000);
+                      }
+                  }
+              }
+              EOF
+
+              javac /tmp/MemoryEater.java
+
+              java \
+                -Xms128m \
+                -Xmx512m \
+                -XX:+ExitOnOutOfMemoryError \
+                -cp /tmp \
+                MemoryEater
+
+          resources:
+            requests:
+              memory: "600Mi"
+              cpu: "100m"
+
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
