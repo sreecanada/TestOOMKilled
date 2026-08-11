@@ -15,7 +15,7 @@ pipeline {
             }
         }
 
-        stage('Deploying to Kubernetes') {
+        stage('Deploying to Kubernetes test') {
             steps {
                 sh 'kubectl apply -f java-memory-test-deployment.yaml'
             }
