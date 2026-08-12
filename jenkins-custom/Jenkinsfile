@@ -9,7 +9,7 @@ pipeline {
             }
         }
 
-        stage('Build Java Application t2') {
+        stage('Build Java Application tt5') {
             steps {
                 sh 'mvn clean package -DskipTests'
             }
